@@ -10,27 +10,21 @@ const Movie = require("./models/Movie");
 const Theatre = require("./models/Theatre");
 const Show = require("./models/Show");
 
+const frontendPath = path.join(__dirname, "..", "Frontend");
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Frontend folder
-app.use(
-    express.static(
-        path.join(__dirname, "../frontend")
-    )
-);
+app.use(express.static(frontendPath));
 
 async function seedInitialData() {
     try {
         const existingHindiMovies = await Movie.find({ language: /^Hindi$/i });
 
-        if (existingHindiMovies.length === 0) {
-            await Show.deleteMany({});
-            await Theatre.deleteMany({});
-            await Movie.deleteMany({});
-
-            const movies = await Movie.insertMany([
+        if (movies.length === 0) {
+            const seededMovies = await Movie.insertMany([
                 {
                     title: "3 Idiots",
                     genre: "Comedy / Drama",
@@ -124,7 +118,7 @@ app.use("/api/bookings", bookingRoutes);
 // Home
 app.get("/", (req, res) => {
     res.sendFile(
-        path.join(__dirname, "../frontend/index.html")
+        path.join(frontendPath, "index.html")
     );
 });
 
