@@ -12,6 +12,9 @@ const Show = require("./models/Show");
 
 const frontendPath = path.join(__dirname, "..", "Frontend");
 
+
+
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -21,7 +24,7 @@ app.use(express.static(frontendPath));
 
 async function seedInitialData() {
     try {
-        const existingHindiMovies = await Movie.find({ language: /^Hindi$/i });
+        let movies = await Movie.find({ language: /^Hindi$/i }).sort({ createdAt: 1 });
 
         if (movies.length === 0) {
             const seededMovies = await Movie.insertMany([
@@ -54,12 +57,20 @@ async function seedInitialData() {
                 }
             ]);
 
-            const theatre = await Theatre.create({
+            movies = seededMovies;
+        }
+
+        let theatre = await Theatre.findOne();
+        if (!theatre) {
+            theatre = await Theatre.create({
                 name: "CineMax Plaza",
                 location: "Downtown"
             });
+        }
 
-            for (const movie of movies) {
+        for (const movie of movies) {
+            const hasShow = await Show.exists({ movieId: movie._id });
+            if (!hasShow) {
                 await Show.create({
                     movieId: movie._id,
                     theatreId: theatre._id,
@@ -68,25 +79,13 @@ async function seedInitialData() {
                     price: 200
                 });
             }
-
-            console.log("Seeded Hindi-only movie data");
         }
 
         const showCount = await Show.countDocuments();
         if (showCount === 0) {
-            const movie = await Movie.findOne({ language: /^Hindi$/i });
-            const theatre = await Theatre.findOne();
-
-            if (movie && theatre) {
-                await Show.create({
-                    movieId: movie._id,
-                    theatreId: theatre._id,
-                    showDate: "2026-09-02",
-                    showTime: "20:15",
-                    price: 220
-                });
-                console.log("Seeded fallback Hindi show data");
-            }
+            console.log("No shows were created during seeding.");
+        } else {
+            console.log(`Seed check complete. ${showCount} show(s) available.`);
         }
     } catch (error) {
         console.log("Seeding Error:", error.message);
