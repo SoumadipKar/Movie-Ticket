@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Movie Details</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🎬 MovieBook
+    </div>
+
+    <nav>
+
+        <a href="index.html">Home</a>
+
+        <a href="movies.html">Movies</a>
+
+        <a href="login.html">Login</a>
+
+    </nav>
+
+</header>
+
+
+<div class="container">
+
+    <div id="movieDetails">
+
+        Loading...
+
+    </div>
+
+</div>
+
+
+<script>
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const movieId =
+    params.get("id");
+
+
+fetch(
+    `/api/movies/${movieId}`
+)
+
+.then(response => response.json())
+
+.then(movie => {
+
+    document.getElementById("movieDetails").innerHTML = `
+
+        <div class="details">
+
+            <img
+                src="${movie.poster}"
+                class="details-poster"
+            >
+
+            <div>
+
+                <h1>${movie.title}</h1>
+
+                <p>
+                    ⭐ ${movie.rating}
+                </p>
+
+                <p>
+                    Genre: ${movie.genre}
+                </p>
+
+                <p>
+                    Language: ${movie.language}
+                </p>
+
+                <p>
+                    Duration: ${movie.duration}
+                </p>
+
+                <p>
+                    ${movie.description}
+                </p>
+
+                <a
+                    href="seats.html?movieId=${movie._id}"
+                    class="btn">
+
+                    Book Tickets
+
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+})
+
+.catch(error => {
+
+    document.getElementById("movieDetails")
+        .innerHTML =
+        "<p>Movie not found.</p>";
+
+});
+
+</script>
+
+</body>
+
+</html>
