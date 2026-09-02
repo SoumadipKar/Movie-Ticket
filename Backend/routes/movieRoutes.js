@@ -8,7 +8,7 @@ const {
     getMovieById,
     createMovie,
     deleteMovie
-} = require("../controllers/movieController");
+} = require("../models/controllers/movieController");
 
 router.get("/hindi", getHindiMovies);
 

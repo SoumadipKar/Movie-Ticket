@@ -122,8 +122,22 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+function startServer(port) {
+    const server = app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+
+    server.on("error", (error) => {
+        if (error.code !== "EADDRINUSE") {
+            throw error;
+        }
+
+        const nextPort = port + 1;
+        console.warn(`Port ${port} is busy. Trying port ${nextPort}.`);
+        startServer(nextPort);
+    });
+}
+
+startServer(PORT);
